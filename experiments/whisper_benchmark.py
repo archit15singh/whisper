@@ -10,6 +10,7 @@ s = time.time()
 model = whisper.load_model(name="tiny", in_memory=True)
 result = model.transcribe("conversation.mp3")
 print(result["text"])
+print(result.keys())
 e = time.time()
 print(e-s)
 
