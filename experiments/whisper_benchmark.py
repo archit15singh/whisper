@@ -6,30 +6,14 @@ import whisper
 from mutagen import File
 
 
+s = time.time()
+model = whisper.load_model(name="tiny", in_memory=True)
+result = model.transcribe("conversation.mp3")
+print(result["text"])
+e = time.time()
+print(e-s)
 
-# s = time.time()
-# model = whisper.load_model("tiny")
-# result = model.transcribe("conversation.mp3")
-# print(result["text"])
-# e = time.time()
-# print(e-s)
 
-
-"""
-Duration: The duration of the audio file (in minutes and seconds) is essential for various applications, such as scheduling, media playback, and knowing the length of audio content.
-
-Format: Knowing the audio format (e.g., MP3, WAV, FLAC) helps identify the type of audio file and can be useful for format-specific processing or playback.
-
-Sample Rate: The sample rate indicates how many audio samples are taken per second. It's crucial for preserving audio quality and determining compatibility with audio playback devices.
-
-Channels: The number of audio channels (e.g., mono or stereo) informs how the audio is structured. This is important for audio playback and processing to ensure proper channel separation.
-
-File Size: File size in megabytes (MB) is essential for managing storage and determining the space required to store or transmit the audio file.
-
-Average Bitrate: The average bitrate (in kilobits per second, kbps) provides information about the quality and compression level of the audio. Higher bitrates generally indicate better quality.
-
-Bitrate Mode: This indicates whether the audio has a constant bitrate (CBR) or variable bitrate (VBR). It's relevant for understanding the encoding method used and the file's predictability.
-"""
 def describe_sample_rate(sample_rate):
     if 44100 <= sample_rate < 48000:
         return "This is the standard sample rate for audio CDs and is often considered 'CD quality.' It's widely used for music distribution and playback."
@@ -94,6 +78,11 @@ def get_audio_stats(file_path):
         audio_stats["bitrate_mode"] = audio.info.bitrate_mode
         classification = classify_bitrate_mode(audio_stats["bitrate_mode"])
         audio_stats["classify_bitrate_mode"] = classification
+        if 'bitrate' in str(audio.info):
+            bit_depth = audio.info.bits_per_sample
+            audio_stats["bit_depth"] = bit_depth
+        
+        audio_stats['audio.info'] = str(audio.info)
 
         return audio_stats
 
@@ -102,3 +91,6 @@ def get_audio_stats(file_path):
 audio_file_path = 'conversation.mp3'
 stats = get_audio_stats(audio_file_path)
 print(stats)
+
+# 1365.5131452083588 seconds for large
+# 
