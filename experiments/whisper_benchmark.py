@@ -92,5 +92,5 @@ audio_file_path = 'conversation.mp3'
 stats = get_audio_stats(audio_file_path)
 print(stats)
 
-# 1365.5131452083588 seconds for large
-# 
+# 1365 seconds for large
+# 34 seconds for tiny
