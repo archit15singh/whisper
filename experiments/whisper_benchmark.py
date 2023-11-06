@@ -4,16 +4,53 @@ from math import ceil
 
 import whisper
 from mutagen import File
+from mutagen.mp3 import MP3
+from mutagen.flac import FLAC
+from mutagen.oggvorbis import OggVorbis
+from mutagen.wavpack import WavPack
+from mutagen.aiff import AIFF
 
 
 s = time.time()
 model = whisper.load_model(name="tiny", in_memory=True)
 result = model.transcribe("conversation.mp3")
-# print(result["text"])
-print(result["segments"])
-print(result["language"])
+
+for data in result['segments']:
+    start = data['start']
+    end = data['end']
+    text = data['text']
+
+    start_minutes, start_seconds = divmod(int(start), 60)
+    end_minutes, end_seconds = divmod(int(end), 60)
+
+    print(f"Start: {start_minutes} minutes {start_seconds} seconds")
+    print(f"End: {end_minutes} minutes {end_seconds} seconds")
+    print(f"Text: {text}\n")
 e = time.time()
 print(e-s)
+
+def get_sample_rate_in_khz(file_path):
+    try:
+        audio = File(file_path)
+        if audio:
+            if isinstance(audio, MP3):
+                sample_rate_hz = audio.info.sample_rate
+            elif isinstance(audio, FLAC):
+                sample_rate_hz = audio.info.sample_rate
+            elif isinstance(audio, OggVorbis):
+                sample_rate_hz = audio.info.sample_rate
+            elif isinstance(audio, WavPack):
+                sample_rate_hz = audio.info.sample_rate
+            elif isinstance(audio, AIFF):
+                sample_rate_hz = audio.info.sample_rate
+            else:
+                return None
+            sample_rate_khz = sample_rate_hz / 1000
+            return sample_rate_khz
+    except Exception as e:
+        print("Error:", str(e))
+    
+    return None
 
 
 def describe_sample_rate(sample_rate):
@@ -85,6 +122,9 @@ def get_audio_stats(file_path):
             audio_stats["bit_depth"] = bit_depth
         
         audio_stats['audio.info'] = str(audio.info)
+
+        sample_rate_khz = get_sample_rate_in_khz(file_path)
+        audio_stats['sample_rate_khz'] = sample_rate_khz
 
         return audio_stats
 
